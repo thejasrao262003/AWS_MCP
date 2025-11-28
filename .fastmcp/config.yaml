@@ -1,0 +1,7 @@
+server:
+  command: "python3"
+  args:
+    - "-m"
+    - "mcp_server.core.server"
+  cwd: "/Users/tejas/PRO_PROJECTS/AWS_MCP"
+
