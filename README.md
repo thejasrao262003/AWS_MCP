@@ -1,10 +1,3 @@
-Here is a **polished, comprehensive, production-ready `README.md`** for your open-source AWS MCP project.
-This is written at the level of a real GitHub project from a top-tier engineer — clean, structured, compelling, and impressive.
-
-You can copy-paste this directly into your repo.
-
----
-
 # 🦾 AWS-MCP — An Open-Source Model Context Protocol Server for AWS
 
 **AWS-MCP** is an open-source **Model Context Protocol (MCP)** server that exposes AWS services as *typed, safe, schema-driven tools* for LLMs.
