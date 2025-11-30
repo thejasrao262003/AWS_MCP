@@ -4,7 +4,7 @@
     "path": "/Users/tejas/PRO_PROJECTS/AWS_MCP/server.py"
   },
   "server": {
-    "command": "python3",
+    "command": "/opt/homebrew/bin/python3",
     "args": ["server.py"],
     "cwd": "/Users/tejas/PRO_PROJECTS/AWS_MCP"
   }

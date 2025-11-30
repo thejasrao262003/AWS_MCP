@@ -16,10 +16,10 @@ These tools provide essential EC2 control.
 | Tool                         | Description                         | Status    |
 | ---------------------------- | ----------------------------------- | --------- |
 | `aws.list_ec2_instances`     | List all EC2 instances in a region  | ✅ DONE    |
-| `aws.get_instance_details`   | Detailed info for a single instance | ⬜ Pending |
-| `aws.get_instance_status`    | Health + system status              | ⬜ Pending |
-| `aws.list_running_instances` | List only running instances         | ⬜ Pending |
-| `aws.list_instances_by_tag`  | Filter by tag key/value             | ⬜ Pending |
+| `aws.get_instance_details`   | Detailed info for a single instance | ✅ DONE    |
+| `aws.get_instance_status`    | Health + system status              | ✅ DONE    |
+| `aws.list_running_instances` | List only running instances         | ✅ DONE    |
+| `aws.list_instances_by_tag`  | Filter by tag key/value             | ✅ DONE    |
 
 ---
 
@@ -27,11 +27,11 @@ These tools provide essential EC2 control.
 
 | Tool                       | Description   | Status    |
 | -------------------------- | ------------- | --------- |
-| `aws.start_instance`       | Start EC2     | ⬜ Pending |
-| `aws.stop_instance`        | Stop EC2      | ⬜ Pending |
-| `aws.reboot_instance`      | Reboot EC2    | ⬜ Pending |
-| `aws.terminate_instance`   | Terminate EC2 | ⬜ Pending |
-| `aws.hard_reboot_instance` | Forced reboot | ⬜ Pending |
+| `aws.start_instance`       | Start EC2     | ✅ DONE    |
+| `aws.stop_instance`        | Stop EC2      | ✅ DONE    |
+| `aws.reboot_instance`      | Reboot EC2    | ✅ DONE    |
+| `aws.terminate_instance`   | Terminate EC2 | ✅ DONE    |
+| `aws.hard_reboot_instance` | Forced reboot | ✅ DONE    |
 
 ---
 

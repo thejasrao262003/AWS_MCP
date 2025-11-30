@@ -1,0 +1,235 @@
+from pydantic import BaseModel, Field
+from typing import Optional, List, Optional, Any, Dict
+
+class ListEC2ParamsTagwise(BaseModel):
+    region: str
+    tag_key: Optional[str] = None
+    tag_value: Optional[str] = None
+
+class EC2ListFilters(BaseModel):
+    region: Optional[str] = Field(default=None)
+    instance_ids: Optional[List[str]] = Field(default=None)
+    states: Optional[List[str]] = Field(default=None)
+    
+    tag_key: Optional[str] = None
+    tag_value: Optional[str] = None
+
+    instance_types: Optional[List[str]] = None
+    vpc_ids: Optional[List[str]] = None
+    subnet_ids: Optional[List[str]] = None
+    security_group_ids: Optional[List[str]] = None
+
+    # ----- SPOT SUPPORT -----
+    spot_only: bool = Field(
+        default=False, 
+        description="If true, only return Spot instances."
+    )
+    exclude_spot: bool = Field(
+        default=False, 
+        description="If true, exclude Spot instances (only on-demand)."
+    )
+    spot_request_id: Optional[str] = Field(
+        default=None,
+        description="Filter instances that were created from a specific Spot Request ID."
+    )
+
+    # ----- RAW CUSTOM FILTERS -----
+    custom_filters: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Pass raw EC2 filter structures: [{'Name': '...', 'Values': [...]}]"
+    )
+
+
+class GetInstanceDetailsParams(BaseModel):
+    instance_id: str = Field(..., description="ID of the EC2 instance")
+    region: str = Field(..., description="AWS region of the instance")
+
+class ListSpotRequestsParams(BaseModel):
+    region: Optional[str] = Field(
+        None, description="AWS region to query. Defaults to the global DEFAULT_REGION."
+    )
+    spot_request_ids: Optional[List[str]] = Field(
+        None, description="List of specific Spot Request IDs to fetch."
+    )
+    states: Optional[List[str]] = Field(
+        None,
+        description="Filter spot requests by state. Examples: open, active, closed, cancelled, failed.",
+    )
+
+class GetSpotRequestDetailsParams(BaseModel):
+    spot_request_id: str = Field(
+        ..., description="The Spot Instance Request ID (sir-xxxxxxxx)."
+    )
+    region: Optional[str] = Field(
+        None, description="AWS region. Defaults to the global DEFAULT_REGION."
+    )
+
+class CancelSpotRequestParams(BaseModel):
+    spot_request_id: str = Field(
+        ..., description="The Spot Instance Request ID to cancel."
+    )
+    region: Optional[str] = Field(
+        None, description="AWS region. Defaults to the global DEFAULT_REGION."
+    )
+
+
+class StartInstanceParams(BaseModel):
+    instance_id: str = Field(..., description="ID of the EC2 instance")
+    region: str = Field(..., description="AWS region of the instance")
+    
+class InstanceLifeCycleParams(BaseModel):
+    instance_id: str = Field(..., description="ID of the EC2 instance")
+    region: str = Field(..., description="AWS region of the instance")
+
+class BaseEC2Tag(BaseModel):
+    Key: str
+    Value: str
+
+
+class EBSConfig(BaseModel):
+    VolumeSize: Optional[int] = None
+    VolumeType: Optional[str] = None
+    DeleteOnTermination: Optional[bool] = None
+    Encrypted: Optional[bool] = None
+    SnapshotId: Optional[str] = None
+
+
+class BlockDevice(BaseModel):
+    DeviceName: str
+    Ebs: Optional[EBSConfig] = None
+
+
+class NetworkInterfaceConfig(BaseModel):
+    DeviceIndex: int
+    SubnetId: Optional[str] = None
+    Description: Optional[str] = None
+    Groups: Optional[List[str]] = None
+    DeleteOnTermination: Optional[bool] = None
+    AssociatePublicIpAddress: Optional[bool] = None
+
+class CreateInstanceParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+
+    ImageId: str = Field(..., description="AMI ID to launch")
+    InstanceType: str = Field(..., description="EC2 instance type")
+    MinCount: int = 1
+    MaxCount: int = 1
+
+    KeyName: Optional[str] = None
+    SubnetId: Optional[str] = None
+    SecurityGroupIds: Optional[List[str]] = None
+
+    BlockDeviceMappings: Optional[List[BlockDevice]] = None
+    NetworkInterfaces: Optional[List[NetworkInterfaceConfig]] = None
+
+    TagSpecifications: Optional[List[Dict[str, Any]]] = None
+
+    IamInstanceProfile: Optional[Dict[str, str]] = None
+    MetadataOptions: Optional[Dict[str, Any]] = None
+    UserData: Optional[str] = None
+    
+    ExtraParams: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Any additional boto3.run_instances fields"
+    )
+
+class CreateSpotInstanceParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+
+    ImageId: str = Field(..., description="AMI ID to launch")
+    InstanceType: str = Field(..., description="EC2 instance type")
+
+    MaxPrice: Optional[str] = Field(
+        None,
+        description="Maximum bid price for the Spot instance (e.g. '0.015'). If None, AWS chooses market price."
+    )
+
+    KeyName: Optional[str] = None
+    SubnetId: Optional[str] = None
+    SecurityGroupIds: Optional[List[str]] = None
+
+    BlockDeviceMappings: Optional[List[BlockDevice]] = None
+    NetworkInterfaces: Optional[List[NetworkInterfaceConfig]] = None
+
+    TagSpecifications: Optional[List[Dict[str, Any]]] = None
+
+    IamInstanceProfile: Optional[Dict[str, str]] = None
+    MetadataOptions: Optional[Dict[str, Any]] = None
+    UserData: Optional[str] = None
+
+    ExtraParams: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Any additional boto3.request_spot_instances fields"
+    )
+
+class CreateInstanceMinimalParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+
+    ImageId: str = Field(..., description="AMI ID")
+    InstanceType: str = Field(..., description="EC2 instance type")
+
+    KeyName: Optional[str] = None
+    SecurityGroupIds: Optional[List[str]] = None
+    SubnetId: Optional[str] = None
+
+    TagSpecifications: Optional[List[Dict[str, Any]]] = None
+
+class InstanceSSHInstructionParams(BaseModel):
+    instance_id: str = Field(..., description="ID of the EC2 instance")
+    region: str = Field(default="ap-south-1")
+    key_name: Optional[str] = Field(
+        None, description="Name of the keypair used for SSH"
+    )
+    pem_path: Optional[str] = Field(
+        None, description="Local path where the PEM is saved"
+    )
+
+    
+class CreateKeyPairParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+    key_name: str
+
+
+class DeleteKeyPairParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+    key_name: str
+
+
+class ListKeyPairsParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+    
+
+class IpPermission(BaseModel):
+    protocol: str = Field(..., description="tcp | udp | icmp | -1")
+    from_port: Optional[int] = Field(None, description="From port")
+    to_port: Optional[int] = Field(None, description="To port")
+    cidr: str = Field(..., description="CIDR block e.g. 0.0.0.0/0")
+
+
+class CreateSecurityGroupParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+    group_name: str
+    description: str
+    vpc_id: str
+    inbound_rules: Optional[List[IpPermission]] = None
+
+
+class DeleteSecurityGroupParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+    group_id: str
+
+
+class ModifyRulesParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+    group_id: str
+    rules: List[IpPermission]
+
+
+class DescribeSGParams(BaseModel):
+    region: str = Field(default="ap-south-1")
+    group_id: Optional[str] = None
+    group_name: Optional[str] = None
+
+
+class ListSGParams(BaseModel):
+    region: str = Field(default="ap-south-1")
