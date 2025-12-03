@@ -164,24 +164,17 @@ def estimate_instance_cost(
         "estimated_cost_usd": round(monthly, 2)
     }
     
-
-tools = [
-    FunctionTool(
-        name="aws.get_ondemand_price",
-        description="Get EC2 on-demand price per hour & per month.",
-        fn=get_ondemand_price,
-        parameters=EC2OnDemandPriceParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="aws.get_spot_price_history",
-        description="Get EC2 Spot Instance price history.",
-        fn=get_spot_price_history,
-        parameters=SpotPriceHistoryParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="aws.estimate_instance_cost",
-        description="Estimate monthly EC2 cost (uses on-demand pricing).",
-        fn=estimate_instance_cost,
-        parameters=EC2CostEstimateParams.model_json_schema(),
-    ),
-]
+EC2_DISPATCH_REGISTRY = {
+    "get_ondemand_price": {
+        "fn": get_ondemand_price,
+        "schema": EC2OnDemandPriceParams,
+    },
+    "get_spot_price_history": {
+        "fn": get_spot_price_history,
+        "schema": SpotPriceHistoryParams,
+    },
+    "estimate_instance_cost": {
+        "fn": estimate_instance_cost,
+        "schema": EC2CostEstimateParams,
+    },
+}

@@ -119,30 +119,24 @@ def describe_volumes(
 
     return resp.get("Volumes", [])
 
+VOLUME_REGISTRY = {
+    "create_volume": {
+        "fn": create_volume,
+        "schema": CreateVolumeParams
+    },
+    "modify_volume": {
+        "fn": modify_volume,
+        "schema": ModifyVolumeParams
+    },
+    "delete_volume": {
+        "fn": delete_volume,
+        "schema": DeleteVolumeParams
+    },
+    "describe_volumes": {
+        "fn": describe_volumes,
+        "schema": DescribeVolumeParams
+    },
+}
 
-tools = [
-    FunctionTool(
-        name="ebs.create_volume",
-        description="Create an EBS volume",
-        fn=create_volume,
-        parameters=CreateVolumeParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.modify_volume",
-        description="Modify an EBS volume",
-        fn=modify_volume,
-        parameters=ModifyVolumeParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.delete_volume",
-        description="Delete an EBS volume",
-        fn=delete_volume,
-        parameters=DeleteVolumeParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.describe_volumes",
-        description="Describe EBS volumes",
-        fn=describe_volumes,
-        parameters=DescribeVolumeParams.model_json_schema(),
-    ),
-]
+# Export for dispatcher auto-discovery
+EBS_DISPATCH_REGISTRY = VOLUME_REGISTRY

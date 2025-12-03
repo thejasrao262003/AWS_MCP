@@ -7,19 +7,10 @@ class ToolRegistry:
     @staticmethod
     def load_all_tools():
         all_tools = []
-        
-        # Only load from service-level modules that have implementations
-        # This avoids duplicate registration from individual tool files
         service_modules = [
             "mcp_server.tools.ec2",
             "mcp_server.tools.ebs",
             "mcp_server.tools.vpc"
-            # Add more service modules as they are implemented:
-            # "mcp_server.tools.ecs",
-            # "mcp_server.tools.ecr",
-            # "mcp_server.tools.lambda_tools",
-            # "mcp_server.tools.s3",
-            # "mcp_server.tools.cloudwatch",
         ]
 
         for module_name in service_modules:

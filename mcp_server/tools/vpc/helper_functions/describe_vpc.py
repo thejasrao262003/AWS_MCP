@@ -130,45 +130,29 @@ def describe_subnet(
     }
 
 
-# ============================================================
-# REGISTER TOOLS
-# ============================================================
-
-tools = [
-    FunctionTool(
-        name="vpc.list_vpcs",
-        description="List all VPCs in a region.",
-        fn=list_vpcs,
-        parameters=RegionOnlyParams.model_json_schema()
-    ),
-    FunctionTool(
-        name="vpc.get_default_vpc",
-        description="Get the default VPC in a region.",
-        fn=get_default_vpc,
-        parameters=RegionOnlyParams.model_json_schema()
-    ),
-    FunctionTool(
-        name="vpc.describe_vpc",
-        description="Describe specific VPC or all VPCs.",
-        fn=describe_vpc,
-        parameters=DescribeVpcParams.model_json_schema()
-    ),
-    FunctionTool(
-        name="vpc.list_subnets",
-        description="List all subnets in a region.",
-        fn=list_subnets,
-        parameters=RegionOnlyParams.model_json_schema()
-    ),
-    FunctionTool(
-        name="vpc.get_default_subnets",
-        description="List all subnets that belong to the default VPC.",
-        fn=get_default_subnets,
-        parameters=RegionOnlyParams.model_json_schema()
-    ),
-    FunctionTool(
-        name="vpc.describe_subnet",
-        description="Describe a subnet or list subnets in a specific VPC.",
-        fn=describe_subnet,
-        parameters=DescribeSubnetParams.model_json_schema()
-    ),
-]
+VPC_REGISTRY = {
+    "list_vpcs": {
+        "fn": list_vpcs,
+        "schema": RegionOnlyParams
+    },
+    "get_default_vpc": {
+        "fn": get_default_vpc,
+        "schema": RegionOnlyParams
+    },
+    "describe_vpc": {
+        "fn": describe_vpc,
+        "schema": DescribeVpcParams
+    },
+    "list_subnets": {
+        "fn": list_subnets,
+        "schema": RegionOnlyParams
+    },
+    "get_default_subnets": {
+        "fn": get_default_subnets,
+        "schema": RegionOnlyParams
+    },
+    "describe_subnet": {
+        "fn": describe_subnet,
+        "schema": DescribeSubnetParams
+    },
+}

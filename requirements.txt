@@ -1,2 +1,4 @@
+boto3
 fastmcp
+pydantic
 python-dotenv

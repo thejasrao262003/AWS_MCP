@@ -251,29 +251,21 @@ def generate_instance_ssh_instruction(
     except Exception as e:
         return {"error": str(e)}
     
-tools = [
-    FunctionTool(
-        name="ec2.create_instance",
-        description="Create an EC2 instance with full parameter support.",
-        fn=create_instance,
-        parameters=CreateInstanceParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.create_instance_minimal",
-        description="Create an EC2 instance with minimal required fields.",
-        fn=create_instance_minimal,
-        parameters=CreateInstanceMinimalParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.create_spot_instance",
-        description="Create a Spot EC2 instance using request_spot_instances.",
-        fn=create_spot_instance,
-        parameters=CreateSpotInstanceParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.generate_instance_ssh_instruction",
-        description="Generate ready-to-use SSH command for an EC2 instance.",
-        fn=generate_instance_ssh_instruction,
-        parameters=InstanceSSHInstructionParams.model_json_schema(),
-    ),
-]
+EC2_DISPATCH_REGISTRY = {
+    "create_instance": {
+        "fn": create_instance,
+        "schema": CreateInstanceParams,
+    },
+    "create_instance_minimal": {
+        "fn": create_instance_minimal,
+        "schema": CreateInstanceMinimalParams,
+    },
+    "create_spot_instance": {
+        "fn": create_spot_instance,
+        "schema": CreateSpotInstanceParams,
+    },
+    "generate_instance_ssh_instruction": {
+        "fn": generate_instance_ssh_instruction,
+        "schema": InstanceSSHInstructionParams,
+    },
+}

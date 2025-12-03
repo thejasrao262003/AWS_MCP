@@ -39,3 +39,17 @@ class DescribeImagesParams(BaseModel):
 class DeregisterAMIParams(BaseModel):
     image_id: str = Field(..., description="AMI ID to deregister")
     region: str = Field(default="ap-south-1")
+
+# -------------------------------------------------------
+# GET LATEST AMI
+# -------------------------------------------------------
+class GetLatestAMIParams(BaseModel):
+    os_type: str = Field(
+        ..., 
+        description="OS type: 'ubuntu', 'amazon-linux-2', 'amazon-linux-2023', 'windows-2022', 'windows-2019', 'debian', 'rhel', 'suse'"
+    )
+    region: str = Field(default="ap-south-1")
+    architecture: str = Field(
+        default="x86_64",
+        description="Architecture: 'x86_64' or 'arm64'"
+    )

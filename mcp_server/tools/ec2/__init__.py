@@ -1,44 +1,64 @@
 """
-EC2 Tools Module
+EC2 Module
 
-This module aggregates all EC2-related tools from their respective submodules.
-Import this module to get access to all EC2 tools.
+This module exposes both:
+1. The unified EC2 dispatcher tool (aws_ec2)
+2. Individual EC2 action tools auto-generated from helper_functions
+
+All individual EC2 operations are located inside:
+
+    mcp_server.tools.ec2.helper_functions
+
+They are discovered dynamically and exposed as separate tools.
 """
 
-from .list import tools as list_tools
-from .instance_lifecycle import tools as lifecycle_tools
-from .instance_creation import tools as instance_creation_tools
-from .keypair import tools as keypair_tools
-from .security_groups import tools as security_group_tools
-from .launch_templates import tools as launch_template_tools
-from .ami import tools as ami_tools
-from .pricing import tools as pricing_tools
-from .metadata import tools as metadata_tools
+from .dispatcher import aws_ec2_tool, EC2_REGISTRY
+from fastmcp.tools import FunctionTool
 
+# Generate individual tools from the registry
+individual_tools = []
 
-# Aggregate all tools into a single list
-tools = [
-    *list_tools,                 # 8 tools: list instances, get details, spot requests, etc.
-    *lifecycle_tools,            # 5 tools: start, stop, reboot, hard reboot, terminate
-    *instance_creation_tools,    # 4 tools: create instance, create minimal, create spot, generate SSH instructions
-    *keypair_tools,              # 3 tools: create, delete, list keypairs
-    *security_group_tools,       # 6 tools: create, delete, authorize, revoke, describe, list SGs
-    *launch_template_tools,      # 6 tools: create, create version, describe, delete, list, launch from template
-    *ami_tools,
-    *metadata_tools,
-    *pricing_tools
-]
+for action_name, action_config in EC2_REGISTRY.items():
+    fn = action_config["fn"]
+    schema = action_config["schema"]
+    
+    # Create a wrapper that validates with schema
+    def make_tool_fn(action_fn, action_schema):
+        def tool_fn(**kwargs):
+            try:
+                validated = action_schema(**kwargs)
+                return action_fn(**validated.model_dump())
+            except Exception as e:
+                return {"error": str(e)}
+        return tool_fn
+    
+    # Build parameter schema from Pydantic model
+    properties = {}
+    required = []
+    
+    for field_name, field_info in schema.model_fields.items():
+        field_type = "string"  # Default to string for simplicity
+        properties[field_name] = {
+            "type": field_type,
+            "description": field_info.description or f"{field_name} parameter"
+        }
+        if field_info.is_required():
+            required.append(field_name)
+    
+    # Create individual tool
+    tool = FunctionTool(
+        name=f"ec2_{action_name}",
+        description=fn.__doc__ or f"EC2 action: {action_name}",
+        fn=make_tool_fn(fn, schema),
+        parameters={
+            "type": "object",
+            "properties": properties,
+            "required": required,
+        }
+    )
+    individual_tools.append(tool)
 
-# Export individual tool lists for granular imports
-__all__ = [
-    "tools",
-    "list_tools",
-    "lifecycle_tools",
-    "instance_creation_tools",
-    "keypair_tools",
-    "security_group_tools",
-    "launch_template_tools",
-    "ami_tools",
-    "metadata_tools",
-    "pricing_tools"
-]
+# Tools exposed by EC2 service: dispatcher + individual tools
+tools = [aws_ec2_tool] + individual_tools
+
+__all__ = ["tools", "aws_ec2_tool"]

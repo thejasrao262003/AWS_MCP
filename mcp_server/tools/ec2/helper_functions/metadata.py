@@ -74,23 +74,17 @@ def modify_metadata_options(
 
     return ec2.modify_instance_metadata_options(**req)
 
-tools = [
-    FunctionTool(
-        name="aws.get_user_data",
-        description="Fetch the user-data script of an EC2 instance.",
-        fn=get_user_data,
-        parameters=GetUserDataParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="aws.describe_metadata_options",
-        description="Describe IMDS metadata options for an EC2 instance.",
-        fn=describe_metadata_options,
-        parameters=DescribeMetadataOptionsParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="aws.modify_metadata_options",
-        description="Modify IMDS metadata settings for an EC2 instance.",
-        fn=modify_metadata_options,
-        parameters=ModifyMetadataOptionsParams.model_json_schema(),
-    ),
-]
+EC2_DISPATCH_REGISTRY = {
+    "get_user_data": {
+        "fn": get_user_data,
+        "schema": GetUserDataParams,
+    },
+    "describe_metadata_options": {
+        "fn": describe_metadata_options,
+        "schema": DescribeMetadataOptionsParams,
+    },
+    "modify_metadata_options": {
+        "fn": modify_metadata_options,
+        "schema": ModifyMetadataOptionsParams,
+    },
+}

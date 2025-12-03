@@ -1,17 +1,65 @@
 """
-EC2 Tools Module
+VPC Tools Module
 
-This module aggregates all EC2-related tools from their respective submodules.
-Import this module to get access to all EC2 tools.
+This module exposes both:
+1. The unified VPC dispatcher tool (aws_vpc)
+2. Individual VPC action tools auto-generated from helper_functions
+
+All individual VPC operations are located inside:
+
+    mcp_server.tools.vpc.helper_functions
+
+They are discovered dynamically and exposed as separate tools.
 """
 
-from .describe_vpc import tools as describe_tools
+from .dispatcher import aws_vpc_tool
+from mcp_server.tools.vpc.helper_functions.describe_vpc import VPC_REGISTRY
+from fastmcp.tools import FunctionTool
 
-# Aggregate all tools into a single list
-tools = [
-    *describe_tools,
-]
+# Generate individual tools from the registry
+individual_tools = []
 
-__all__ = [
-    "describe_tools",
-]
+for action_name, action_config in VPC_REGISTRY.items():
+    fn = action_config["fn"]
+    schema = action_config["schema"]
+    
+    # Create a wrapper that validates with schema
+    def make_tool_fn(action_fn, action_schema):
+        def tool_fn(**kwargs):
+            try:
+                validated = action_schema(**kwargs)
+                return action_fn(**validated.model_dump())
+            except Exception as e:
+                return {"error": str(e)}
+        return tool_fn
+    
+    # Build parameter schema from Pydantic model
+    properties = {}
+    required = []
+    
+    for field_name, field_info in schema.model_fields.items():
+        field_type = "string"  # Default to string for simplicity
+        properties[field_name] = {
+            "type": field_type,
+            "description": field_info.description or f"{field_name} parameter"
+        }
+        if field_info.is_required():
+            required.append(field_name)
+    
+    # Create individual tool
+    tool = FunctionTool(
+        name=f"vpc_{action_name}",
+        description=fn.__doc__ or f"VPC action: {action_name}",
+        fn=make_tool_fn(fn, schema),
+        parameters={
+            "type": "object",
+            "properties": properties,
+            "required": required,
+        }
+    )
+    individual_tools.append(tool)
+
+# Tools exposed by VPC service: dispatcher + individual tools
+tools = [aws_vpc_tool] + individual_tools
+
+__all__ = ["tools", "aws_vpc_tool"]

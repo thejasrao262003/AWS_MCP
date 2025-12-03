@@ -212,41 +212,29 @@ def launch_from_template(
 
     return resp
 
-tools = [
-    FunctionTool(
-        name="ec2.create_launch_template",
-        description="Create a new EC2 Launch Template",
-        fn=create_launch_template,
-        parameters=CreateLaunchTemplateParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.create_launch_template_version",
-        description="Create a new version of an existing launch template",
-        fn=create_launch_template_version,
-        parameters=CreateLaunchTemplateVersionParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.describe_launch_template",
-        description="Describe an EC2 launch template",
-        fn=describe_launch_template,
-        parameters=DescribeLaunchTemplateParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.delete_launch_template",
-        description="Delete an EC2 launch template",
-        fn=delete_launch_template,
-        parameters=DeleteLaunchTemplateParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.list_launch_templates",
-        description="List all EC2 launch templates in a region",
-        fn=list_launch_templates,
-        parameters={"type": "object", "properties": {"region": {"type": "string"}}}
-    ),
-    FunctionTool(
-        name="ec2.launch_from_template",
-        description="Launch an EC2 instance using an AWS Launch Template",
-        fn=launch_from_template,
-        parameters=LaunchFromTemplateParams.model_json_schema(),
-    ),
-]
+EC2_DISPATCH_REGISTRY = {
+    "create_launch_template": {
+        "fn": create_launch_template,
+        "schema": CreateLaunchTemplateParams,
+    },
+    "create_launch_template_version": {
+        "fn": create_launch_template_version,
+        "schema": CreateLaunchTemplateVersionParams,
+    },
+    "describe_launch_template": {
+        "fn": describe_launch_template,
+        "schema": DescribeLaunchTemplateParams,
+    },
+    "delete_launch_template": {
+        "fn": delete_launch_template,
+        "schema": DeleteLaunchTemplateParams,
+    },
+    "list_launch_templates": {
+        "fn": list_launch_templates,
+        "schema": DeleteLaunchTemplateParams,
+    },
+    "launch_from_template": {
+        "fn": launch_from_template,
+        "schema": LaunchFromTemplateParams,
+    },
+}

@@ -74,9 +74,9 @@ def list_ec2_instances(
     # ---- Query AWS ----
     try:
         if instance_ids:
-            resp = ec2.describe_instances(InstanceIds=instance_ids, Filters=filters or None)
+            resp = ec2.describe_instances(InstanceIds=instance_ids, Filters=filters) if filters else ec2.describe_instances(InstanceIds=instance_ids)
         else:
-            resp = ec2.describe_instances(Filters=filters or None)
+            resp = ec2.describe_instances(Filters=filters) if filters else ec2.describe_instances()
 
         instances = []
         for res in resp.get("Reservations", []):
@@ -225,10 +225,12 @@ def list_spot_requests(
         if spot_request_ids:
             resp = ec2.describe_spot_instance_requests(
                 SpotInstanceRequestIds=spot_request_ids,
-                Filters=filters or None
+                Filters=filters
+            ) if filters else ec2.describe_spot_instance_requests(
+                SpotInstanceRequestIds=spot_request_ids
             )
         else:
-            resp = ec2.describe_spot_instance_requests(Filters=filters or None)
+            resp = ec2.describe_spot_instance_requests(Filters=filters) if filters else ec2.describe_spot_instance_requests()
 
         return {
             "region": region,
@@ -312,58 +314,47 @@ def cancel_spot_request(
             "error": str(e)
         }
 
-# --------------------------------
-# REQUIRED: REGISTER TOOLS IN LIST
-# --------------------------------
-tools = [
-    FunctionTool(
-        name="ec2.list_ec2_instances",
-        description="List EC2 instances.",
-        fn=list_ec2_instances,
-        parameters=ListEC2Params.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.get_instance_details",
-        description="Get full details of an EC2 instance.",
-        fn=get_instance_details,
-        parameters=GetInstanceDetailsParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.get_instance_running_details",
-        description="Get running status of an EC2 instance",
-        fn=get_instance_status,
-        parameters=GetInstanceDetailsParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.list_running_instances",
-        description="Get full list of instances currently running and being billed",
-        fn=list_running_instances,
-        parameters=ListEC2Params.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.list_instances_by_tag",
-        description="Get details of instances belonging to a particular tag_key and tag_value",
-        fn=list_instances_by_tag,
-        parameters=ListEC2ParamsTagwise.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.list_spot_requests",
-        description="List all AWS Spot Instance Requests.",
-        fn=list_spot_requests,
-        parameters=ListSpotRequestsParams.model_json_schema(),
-    ),
+EC2_DISPATCH_REGISTRY = {
 
-    FunctionTool(
-        name="ec2.get_spot_request_details",
-        description="Get details for a specific Spot Instance Request.",
-        fn=get_spot_request_details,
-        parameters=GetSpotRequestDetailsParams.model_json_schema(),
-    ),
+    # ------------ INSTANCE LISTING ------------
+    "list_ec2_instances": {
+        "fn": list_ec2_instances,
+        "schema": ListEC2Params,
+    },
 
-    FunctionTool(
-        name="ec2.cancel_spot_request",
-        description="Cancel a Spot Instance Request.",
-        fn=cancel_spot_request,
-        parameters=CancelSpotRequestParams.model_json_schema(),
-    ),
-]
+    "get_instance_details": {
+        "fn": get_instance_details,
+        "schema": GetInstanceDetailsParams,
+    },
+
+    "get_instance_status": {
+        "fn": get_instance_status,
+        "schema": GetInstanceDetailsParams,
+    },
+
+    "list_running_instances": {
+        "fn": list_running_instances,
+        "schema": ListEC2Params,
+    },
+
+    "list_instances_by_tag": {
+        "fn": list_instances_by_tag,
+        "schema": ListEC2ParamsTagwise,
+    },
+
+    # ------------ SPOT REQUESTS ------------
+    "list_spot_requests": {
+        "fn": list_spot_requests,
+        "schema": ListSpotRequestsParams,
+    },
+
+    "get_spot_request_details": {
+        "fn": get_spot_request_details,
+        "schema": GetSpotRequestDetailsParams,
+    },
+
+    "cancel_spot_request": {
+        "fn": cancel_spot_request,
+        "schema": CancelSpotRequestParams,
+    },
+}

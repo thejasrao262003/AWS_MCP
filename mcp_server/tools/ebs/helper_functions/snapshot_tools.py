@@ -196,50 +196,37 @@ def manage_fast_snapshot_restore(
         )
 
 
-# =======================================================
-# TOOL REGISTRATION
-# =======================================================
-tools = [
-    FunctionTool(
-        name="ebs.create_snapshot",
-        description="Create an EBS snapshot from a volume.",
-        fn=create_snapshot,
-        parameters=CreateSnapshotParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.list_snapshots",
-        description="List EBS snapshots (owned/shared/public).",
-        fn=list_snapshots,
-        parameters=ListSnapshotsParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.describe_snapshot",
-        description="Describe a specific snapshot.",
-        fn=describe_snapshot,
-        parameters=SnapshotIdParam.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.delete_snapshot",
-        description="Delete a snapshot.",
-        fn=delete_snapshot,
-        parameters=DeleteSnapshotParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.copy_snapshot",
-        description="Copy a snapshot to another region.",
-        fn=copy_snapshot,
-        parameters=CopySnapshotParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.restore_volume_from_snapshot",
-        description="Create/restore an EBS volume from a snapshot.",
-        fn=restore_volume_from_snapshot,
-        parameters=CreateVolumeFromSnapshotParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.manage_fast_snapshot_restore",
-        description="Enable or disable Fast Snapshot Restore for AZs.",
-        fn=manage_fast_snapshot_restore,
-        parameters=FastRestoreParams.model_json_schema(),
-    ),
-]
+
+SNAPSHOT_REGISTRY = {
+    "create_snapshot": {
+        "fn": create_snapshot,
+        "schema": CreateSnapshotParams
+    },
+    "list_snapshots": {
+        "fn": list_snapshots,
+        "schema": ListSnapshotsParams
+    },
+    "describe_snapshot": {
+        "fn": describe_snapshot,
+        "schema": SnapshotIdParam
+    },
+    "delete_snapshot": {
+        "fn": delete_snapshot,
+        "schema": DeleteSnapshotParams
+    },
+    "copy_snapshot": {
+        "fn": copy_snapshot,
+        "schema": CopySnapshotParams
+    },
+    "restore_volume_from_snapshot": {
+        "fn": restore_volume_from_snapshot,
+        "schema": CreateVolumeFromSnapshotParams
+    },
+    "manage_fast_snapshot_restore": {
+        "fn": manage_fast_snapshot_restore,
+        "schema": FastRestoreParams
+    },
+}
+
+# Export for dispatcher auto-discovery
+EBS_DISPATCH_REGISTRY = SNAPSHOT_REGISTRY

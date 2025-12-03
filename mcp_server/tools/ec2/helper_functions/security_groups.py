@@ -104,7 +104,7 @@ def describe_security_group(region: str, group_id: str = None, group_name: str =
         if group_name:
             filters.append({"Name": "group-name", "Values": [group_name]})
 
-        resp = ec2.describe_security_groups(Filters=filters or None)
+        resp = ec2.describe_security_groups(Filters=filters) if filters else ec2.describe_security_groups()
 
         return {"security_groups": resp.get("SecurityGroups", [])}
 
@@ -133,41 +133,29 @@ def list_security_groups(region: str):
     except Exception as e:
         return {"error": str(e)}
     
-tools = [
-    FunctionTool(
-        name="ec2.create_security_group",
-        description="Create a security group and optionally add inbound rules.",
-        fn=create_security_group,
-        parameters=CreateSecurityGroupParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.delete_security_group",
-        description="Delete a security group by GroupId.",
-        fn=delete_security_group,
-        parameters=DeleteSecurityGroupParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.authorize_security_group_rules",
-        description="Add inbound rules to a security group.",
-        fn=authorize_rules,
-        parameters=ModifyRulesParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.revoke_security_group_rules",
-        description="Remove inbound rules from a security group.",
-        fn=revoke_rules,
-        parameters=ModifyRulesParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.describe_security_group",
-        description="Describe a specific security group.",
-        fn=describe_security_group,
-        parameters=DescribeSGParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ec2.list_security_groups",
-        description="List all security groups in a region.",
-        fn=list_security_groups,
-        parameters=ListSGParams.model_json_schema(),
-    )   
-]
+EC2_DISPATCH_REGISTRY = {
+    "create_security_group": {
+        "fn": create_security_group,
+        "schema": CreateSecurityGroupParams,
+    },
+    "delete_security_group": {
+        "fn": delete_security_group,
+        "schema": DeleteSecurityGroupParams,
+    },
+    "authorize_security_group_rules": {
+        "fn": authorize_rules,
+        "schema": ModifyRulesParams,
+    },
+    "revoke_security_group_rules": {
+        "fn": revoke_rules,
+        "schema": ModifyRulesParams,
+    },
+    "describe_security_group": {
+        "fn": describe_security_group,
+        "schema": DescribeSGParams,
+    },
+    "list_security_groups": {
+        "fn": list_security_groups,
+        "schema": ListSGParams,
+    },
+}

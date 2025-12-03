@@ -76,36 +76,25 @@ def terminate_instance(*, instance_id: str, region: str = DEFAULT_REGION) -> dic
     except Exception as e:
         return {"status": "error", "instance_id": instance_id, "error": str(e)}
 
-
-tools = [
-    FunctionTool(
-        name="ec2.start_instance",
-        description="Start an EC2 Instance",
-        fn=start_instance,
-        parameters=InstanceLifeCycleParams.model_json_schema()
-    ),
-    FunctionTool(
-        name="ec2.stop_instance",
-        description="Stop a running EC2 instance",
-        fn=stop_instance,
-        parameters=InstanceLifeCycleParams.model_json_schema()
-    ),
-    FunctionTool(
-        name="ec2.reboot_instance",
-        description="Reboot a running EC2 instance",
-        fn=reboot_instance,
-        parameters=InstanceLifeCycleParams.model_json_schema()
-    ),
-    FunctionTool(
-        name="ec2.hard_reboot_instance",
-        description="Hard Reboot a running EC2 instance",
-        fn=hard_reboot_instance,
-        parameters=InstanceLifeCycleParams.model_json_schema()
-    ),
-    FunctionTool(
-        name="ec2.terminate_instance",
-        description="Terminate a stopped EC2 Instance",
-        fn=terminate_instance,
-        parameters=InstanceLifeCycleParams.model_json_schema()
-    ),
-]
+EC2_DISPATCH_REGISTRY = {
+    "start_instance": {
+        "fn": start_instance,
+        "schema": InstanceLifeCycleParams,
+    },
+    "stop_instance": {
+        "fn": stop_instance,
+        "schema": InstanceLifeCycleParams,
+    },
+    "reboot_instance": {
+        "fn": reboot_instance,
+        "schema": InstanceLifeCycleParams,
+    },
+    "hard_reboot_instance": {
+        "fn": hard_reboot_instance,
+        "schema": InstanceLifeCycleParams,
+    },
+    "terminate_instance": {
+        "fn": terminate_instance,
+        "schema": InstanceLifeCycleParams,
+    },
+}

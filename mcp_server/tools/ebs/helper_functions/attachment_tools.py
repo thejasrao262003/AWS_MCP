@@ -43,18 +43,16 @@ def detach_volume(
         Force=Force,
     )
 
+ATTACHMENT_REGISTRY = {
+    "attach_volume": {
+        "fn": attach_volume,
+        "schema": AttachVolumeParams
+    },
+    "detach_volume": {
+        "fn": detach_volume,
+        "schema": DetachVolumeParams
+    },
+}
 
-tools = [
-    FunctionTool(
-        name="ebs.attach_volume",
-        description="Attach an EBS volume to EC2",
-        fn=attach_volume,
-        parameters=AttachVolumeParams.model_json_schema(),
-    ),
-    FunctionTool(
-        name="ebs.detach_volume",
-        description="Detach an EBS volume",
-        fn=detach_volume,
-        parameters=DetachVolumeParams.model_json_schema(),
-    ),
-]
+# Export for dispatcher auto-discovery
+EBS_DISPATCH_REGISTRY = ATTACHMENT_REGISTRY
